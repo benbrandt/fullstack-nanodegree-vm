@@ -17,4 +17,4 @@ CREATE TABLE matches ( matchid SERIAL,
 
 CREATE TABLE scoreboard ( id INTEGER,
                           wins INTEGER,
-                          MATCHES INTEGER );
+                          matches INTEGER );
