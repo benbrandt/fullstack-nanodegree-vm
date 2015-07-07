@@ -72,7 +72,7 @@ def playerStandings():
     c = DB.cursor()
     c.execute("""SELECT id, name, wins, matches
                  FROM players
-                 ORDER BY wins
+                 ORDER BY wins, matches
               """)
     ranks = []
     for row in c.fetchall():
