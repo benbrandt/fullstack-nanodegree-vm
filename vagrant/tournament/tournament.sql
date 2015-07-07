@@ -12,7 +12,5 @@ CREATE TABLE players ( id SERIAL,
                        matches INTEGER );
 
 CREATE TABLE matches ( matchid SERIAL,
-                       round INTEGER,
-                       player1 INTEGER,
-                       player2 INTEGER,
-                       winner INTEGER );
+                       winner INTEGER,
+                       loser INTEGER );
