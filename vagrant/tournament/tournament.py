@@ -98,6 +98,26 @@ def reportMatch(winner, loser):
     DB.commit()
     DB.close()
 
+def validPair(player1, player2):
+    """Checks if two players have already played against each other
+
+    Args:
+        player1: the id number of first player to check
+        player2: the id number of potentail paired player
+
+    Return true if valid paid, false if not
+    """
+    DB = connect()
+    c = DB.cursor()
+    matches = c.execute("""SELECT winner, loser
+                 FROM matches
+                 WHERE (winner = player1 AND loser = player2)
+                 OR (winner = player2 AND loser = player1)
+              """)
+    DB.close()
+    if matches.rowcount:
+        return False
+    return True
 
 def swissPairings():
     """Returns a list of pairs of players for the next round of a match.
@@ -117,8 +137,8 @@ def swissPairings():
     ranks = playerStandings()
     pairs = []
     i = 0
-    while i < len(ranks):
-        player1 = ranks[i]
+    while len(ranks) > 0:
+        player1 = ranks.pop(0)
         player2 = ranks[i+1]
         pairs.append((player1[0], player1[1],player2[0],player2[1]))
         i += 2
