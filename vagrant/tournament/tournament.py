@@ -113,9 +113,10 @@ def validPair(player1, player2):
              FROM matches
              WHERE (winner = %s AND loser = %s)
              OR (winner = %s AND loser = %s)"""
-    matches = c.execute(sql, (player1, player2, player2, player1))
+    c.execute(sql, (player1, player2, player2, player1))
+    matches = c.rowcount
     DB.close()
-    if matches.rowcount:
+    if matches > 0:
         return False
     return True
 
