@@ -109,11 +109,11 @@ def validPair(player1, player2):
     """
     DB = connect()
     c = DB.cursor()
-    matches = c.execute("""SELECT winner, loser
-                 FROM matches
-                 WHERE (winner = player1 AND loser = player2)
-                 OR (winner = player2 AND loser = player1)
-              """)
+    sql = """SELECT winner, loser
+             FROM matches
+             WHERE (winner = %s AND loser = %s)
+             OR (winner = %s AND loser = %s)"""
+    matches = c.execute(sql, (player1, player2, player2, player1))
     DB.close()
     if matches.rowcount:
         return False
