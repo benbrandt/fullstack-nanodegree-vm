@@ -137,7 +137,7 @@ def swissPairings():
     """
     ranks = playerStandings()
     pairs = []
-    while len(ranks) > 0:
+    while len(ranks) > 1:
         if validPair(ranks[0][0], ranks[1][0]):
             player1 = ranks.pop(0)
             player2 = ranks.pop(0)
