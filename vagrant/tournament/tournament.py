@@ -105,7 +105,7 @@ def validPair(player1, player2):
         player1: the id number of first player to check
         player2: the id number of potentail paired player
 
-    Return true if valid paid, false if not
+    Return true if valid pair, false if not
     """
     DB = connect()
     c = DB.cursor()
@@ -119,6 +119,25 @@ def validPair(player1, player2):
     if matches > 0:
         return False
     return True
+
+def checkPairs(ranks, id1, id2):
+    """Checks if two players have already had a match against each other.
+    If they have, recursively checks through the list until a valid match is
+    found.
+
+    Args:
+        ranks: list of current ranks from swissPairings()
+        id1: player needing a match
+        id2: potential matched player
+
+    Returns id of matched player or original match if none are found.
+    """
+    if (id2 + 1) >= len(ranks):
+        return id1
+    elif validPair(ranks[id1][0], ranks[id2][0]):
+        return id2 - 1
+    else:
+        checkPairs(ranks, id1, (id2 + 1))
 
 def swissPairings():
     """Returns a list of pairs of players for the next round of a match.
@@ -138,11 +157,8 @@ def swissPairings():
     ranks = playerStandings()
     pairs = []
     while len(ranks) > 1:
-        if validPair(ranks[0][0], ranks[1][0]):
-            player1 = ranks.pop(0)
-            player2 = ranks.pop(0)
-        else:
-            player1 = ranks.pop(0)
-            player2 = ranks.pop(1)
+        validMatch = checkPairs(ranks,0,1)
+        player1 = ranks.pop(0)
+        player2 = ranks.pop(validMatch)
         pairs.append((player1[0], player1[1],player2[0],player2[1]))
     return pairs
