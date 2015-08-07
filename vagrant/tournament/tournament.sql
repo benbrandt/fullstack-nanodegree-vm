@@ -9,7 +9,8 @@
 CREATE TABLE players ( id SERIAL,
                        name TEXT,
                        wins INTEGER,
-                       matches INTEGER );
+                       matches INTEGER,
+                       bye INTEGER );
 
 CREATE TABLE matches ( matchid SERIAL,
                        winner INTEGER,

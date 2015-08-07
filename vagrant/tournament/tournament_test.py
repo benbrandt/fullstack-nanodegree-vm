@@ -67,12 +67,12 @@ def testStandingsBeforeMatches():
                          "they have played any matches.")
     elif len(standings) > 2:
         raise ValueError("Only registered players should appear in standings.")
-    if len(standings[0]) != 4:
-        raise ValueError("Each playerStandings row should have four columns.")
-    [(id1, name1, wins1, matches1), (id2, name2, wins2, matches2)] = standings
-    if matches1 != 0 or matches2 != 0 or wins1 != 0 or wins2 != 0:
+    if len(standings[0]) != 5:
+        raise ValueError("Each playerStandings row should have five columns.")
+    [(id1, name1, wins1, matches1, bye1), (id2, name2, wins2, matches2, bye2)] = standings
+    if matches1 != 0 or matches2 != 0 or wins1 != 0 or wins2 != 0 or bye1 !=0 or bye2 != 0:
         raise ValueError(
-            "Newly registered players should have no matches or wins.")
+            "Newly registered players should have no matches, wins, or byes.")
     if set([name1, name2]) != set(["Melpomene Murray", "Randy Schwartz"]):
         raise ValueError("Registered players' names should appear in standings, "
                          "even if they have no matches played.")
@@ -91,7 +91,7 @@ def testReportMatches():
     reportMatch(id1, id2)
     reportMatch(id3, id4)
     standings = playerStandings()
-    for (i, n, w, m) in standings:
+    for (i, n, w, m, b) in standings:
         if m != 1:
             raise ValueError("Each player should have one match recorded.")
         if i in (id1, id3) and w != 1:
@@ -100,6 +100,43 @@ def testReportMatches():
             raise ValueError("Each match loser should have zero wins recorded.")
     print "7. After a match, players have updated standings."
 
+def testReportBye():
+    deleteMatches()
+    deletePlayers()
+    registerPlayer("Bruno Walton")
+    standings = playerStandings()
+    id = standings[0][0]
+    reportBye(id)
+    standings = playerStandings()
+    for row in standings:
+        if row[4] != 1:
+            raise ValueError("This player should have a bye")
+    print "8. Byes are reported properly"
+
+def testHasBye():
+    deleteMatches()
+    deletePlayers()
+    registerPlayer("Bruno Walton")
+    standings = playerStandings()
+    id = standings[0][0]
+    reportBye(id)
+    if not hasBye(id):
+        raise ValueError("This player should have a bye")
+    print "9. Byes are checked properly"
+
+def testCheckByes():
+    deleteMatches()
+    deletePlayers()
+    registerPlayer("Bruno Walton")
+    registerPlayer("Boots O'Neal")
+    standings = playerStandings()
+    id = standings[1][0]
+    reportBye(id)
+    standings = playerStandings()
+    test = checkByes(standings, -1)
+    if test == -1:
+        raise ValueError("This player already has a bye")
+    print "10. Byes are assigned properly"
 
 def testPairings():
     deleteMatches()
@@ -122,7 +159,7 @@ def testPairings():
     if correct_pairs != actual_pairs:
         raise ValueError(
             "After one match, players with one win should be paired.")
-    print "8. After one match, players with one win are paired."
+    print "11. After one match, players with one win are paired."
 
 
 if __name__ == '__main__':
@@ -133,7 +170,8 @@ if __name__ == '__main__':
     testRegisterCountDelete()
     testStandingsBeforeMatches()
     testReportMatches()
+    testReportBye()
+    testHasBye
+    testCheckByes()
     testPairings()
     print "Success!  All tests pass!"
-
-

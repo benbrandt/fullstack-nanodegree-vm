@@ -49,8 +49,8 @@ def registerPlayer(name):
     """
     DB = connect()
     c = DB.cursor()
-    cmd = "INSERT INTO players (name,wins,matches) VALUES (%s,%s,%s)"
-    c.execute(cmd, (name,0,0))
+    cmd = "INSERT INTO players (name,wins,matches,bye) VALUES (%s,%s,%s,%s)"
+    c.execute(cmd, (name,0,0,0))
     DB.commit()
     DB.close()
 
@@ -70,7 +70,7 @@ def playerStandings():
     """
     DB = connect()
     c = DB.cursor()
-    c.execute("""SELECT id, name, wins, matches
+    c.execute("""SELECT id, name, wins, matches, bye
                  FROM players
                  ORDER BY wins, matches
               """)
@@ -97,6 +97,57 @@ def reportMatch(winner, loser):
     c.execute(los, (loser,))
     DB.commit()
     DB.close()
+
+def hasBye(id):
+    """Checks if player has bye.
+
+    Args:
+        id: id of player to check
+
+    Returns true or false.
+    """
+    DB = connect()
+    c= DB.cursor()
+    sql = """SELECT bye
+             FROM players
+             WHERE id = %s"""
+    c.execute(sql, (id,))
+    bye = c.fetchone()[0]
+    DB.close()
+    if bye == 0:
+        return True
+    else:
+        return False
+
+def reportBye(player):
+    """Assign points for a bye.
+
+    Args:
+      player: id of player who receives a bye.
+    """
+    DB = connect()
+    c = DB.cursor()
+    bye = "UPDATE players SET wins = wins+1, matches = matches+1, bye=bye+1 WHERE id = %s"
+    c.execute(bye, (player,))
+    DB.commit()
+    DB.close()
+
+
+def checkByes(ranks, index):
+    """Checks if players already have a bye
+
+    Args:
+        ranks: list of current ranks from swissPairings()
+        index: index to check
+
+    Returns first id that is valid or original id if none are found.
+    """
+    if abs(index) > len(ranks):
+        return -1
+    elif hasBye(ranks[index][0]):
+        return index
+    else:
+        checkByes(ranks, (index - 1))
 
 def validPair(player1, player2):
     """Checks if two players have already played against each other
@@ -156,6 +207,12 @@ def swissPairings():
     """
     ranks = playerStandings()
     pairs = []
+
+    numPlayers = countPlayers()
+    if numPlayers % 2 != 0:
+        bye = ranks.pop(checkByes(ranks, -1))
+        reportBye(bye[0])
+
     while len(ranks) > 1:
         validMatch = checkPairs(ranks,0,1)
         player1 = ranks.pop(0)
