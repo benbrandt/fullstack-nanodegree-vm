@@ -161,6 +161,30 @@ def testPairings():
             "After one match, players with one win should be paired.")
     print "11. After one match, players with one win are paired."
 
+def testOddPairings():
+    deleteMatches()
+    deletePlayers()
+    registerPlayer("Twilight Sparkle")
+    registerPlayer("Fluttershy")
+    registerPlayer("Applejack")
+    registerPlayer("Pinkie Pie")
+    registerPlayer("Bye Bye")
+    standings = playerStandings()
+    [id1, id2, id3, id4, id5] = [row[0] for row in standings]
+    reportMatch(id1, id2)
+    reportMatch(id3, id4)
+    pairings = swissPairings()
+    if len(pairings) != 2:
+        raise ValueError(
+            "For five players, swissPairings should return two pairs.")
+    [(pid1, pname1, pid2, pname2), (pid3, pname3, pid4, pname4)] = pairings
+    correct_pairs = set([frozenset([id1, id3]), frozenset([id2, id4])])
+    actual_pairs = set([frozenset([pid1, pid2]), frozenset([pid3, pid4])])
+    if correct_pairs != actual_pairs and not hasBye(id5):
+        raise ValueError(
+            "Bye should be given to last standing")
+    print "12. With odd number, last player should have bye."
+
 def testRematch():
     deleteMatches()
     deletePlayers()
@@ -188,7 +212,7 @@ def testRematch():
     if correct_pairs != actual_pairs:
         raise ValueError(
             "Rematch occurred.")
-    print "12. Rematch avoided."
+    print "13. Rematch avoided."
 
 
 if __name__ == '__main__':
@@ -203,5 +227,6 @@ if __name__ == '__main__':
     testHasBye
     testCheckByes()
     testPairings()
+    testOddPairings()
     testRematch()
     print "Success!  All tests pass!"
