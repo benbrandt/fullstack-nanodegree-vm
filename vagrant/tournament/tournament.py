@@ -72,7 +72,7 @@ def playerStandings():
     c = DB.cursor()
     c.execute("""SELECT id, name, wins, matches, bye
                  FROM players
-                 ORDER BY wins, matches
+                 ORDER BY wins DESC, matches
               """)
     ranks = []
     for row in c.fetchall():
@@ -144,10 +144,10 @@ def checkByes(ranks, index):
     """
     if abs(index) > len(ranks):
         return -1
-    elif hasBye(ranks[index][0]):
+    elif not hasBye(ranks[index][0]):
         return index
     else:
-        checkByes(ranks, (index - 1))
+        return checkByes(ranks, (index - 1))
 
 def validPair(player1, player2):
     """Checks if two players have already played against each other
@@ -183,12 +183,12 @@ def checkPairs(ranks, id1, id2):
 
     Returns id of matched player or original match if none are found.
     """
-    if (id2 + 1) >= len(ranks):
-        return id1
+    if id2 >= len(ranks):
+        return id1 + 1
     elif validPair(ranks[id1][0], ranks[id2][0]):
-        return id2 - 1
+        return id2
     else:
-        checkPairs(ranks, id1, (id2 + 1))
+        return checkPairs(ranks, id1, (id2 + 1))
 
 def swissPairings():
     """Returns a list of pairs of players for the next round of a match.
@@ -216,6 +216,7 @@ def swissPairings():
     while len(ranks) > 1:
         validMatch = checkPairs(ranks,0,1)
         player1 = ranks.pop(0)
-        player2 = ranks.pop(validMatch)
-        pairs.append((player1[0], player1[1],player2[0],player2[1]))
+        player2 = ranks.pop(validMatch - 1)
+        pairs.append((player1[0],player1[1],player2[0],player2[1]))
+
     return pairs

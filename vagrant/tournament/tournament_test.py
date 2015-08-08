@@ -130,7 +130,7 @@ def testCheckByes():
     registerPlayer("Bruno Walton")
     registerPlayer("Boots O'Neal")
     standings = playerStandings()
-    id = standings[1][0]
+    id = standings[-1][0]
     reportBye(id)
     standings = playerStandings()
     test = checkByes(standings, -1)
@@ -161,6 +161,35 @@ def testPairings():
             "After one match, players with one win should be paired.")
     print "11. After one match, players with one win are paired."
 
+def testRematch():
+    deleteMatches()
+    deletePlayers()
+    registerPlayer("One")
+    registerPlayer("Two")
+    registerPlayer("Three")
+    registerPlayer("Four")
+    registerPlayer("Five")
+    registerPlayer("Six")
+    standings = playerStandings()
+    [id1, id2, id3, id4, id5, id6] = [row[0] for row in standings]
+    reportMatch(id1, id2)
+    reportMatch(id3, id4)
+    reportMatch(id5, id6)
+    reportMatch(id1, id3)
+    reportMatch(id5, id2)
+    reportMatch(id4, id6)
+    pairings = swissPairings()
+    if len(pairings) != 3:
+        raise ValueError(
+            "For six players, swissPairings should return three pairs.")
+    [(pid1, pname1, pid2, pname2), (pid3, pname3, pid4, pname4), (pid5, pname5, pid6, pname6)] = pairings
+    correct_pairs = set([frozenset([id1, id5]), frozenset([id3, id2]), frozenset([id4, id6])])
+    actual_pairs = set([frozenset([pid1, pid2]), frozenset([pid3, pid4]), frozenset([pid5, pid6])])
+    if correct_pairs != actual_pairs:
+        raise ValueError(
+            "Rematch occurred.")
+    print "12. Rematch avoided."
+
 
 if __name__ == '__main__':
     testDeleteMatches()
@@ -174,4 +203,5 @@ if __name__ == '__main__':
     testHasBye
     testCheckByes()
     testPairings()
+    testRematch()
     print "Success!  All tests pass!"
