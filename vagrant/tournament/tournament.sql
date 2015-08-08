@@ -8,10 +8,11 @@
 
 CREATE TABLE players ( id SERIAL,
                        name TEXT,
-                       wins INTEGER,
+                       score INTEGER,
                        matches INTEGER,
                        bye INTEGER );
 
 CREATE TABLE matches ( matchid SERIAL,
                        winner INTEGER,
-                       loser INTEGER );
+                       loser INTEGER,
+                       draw BOOLEAN );

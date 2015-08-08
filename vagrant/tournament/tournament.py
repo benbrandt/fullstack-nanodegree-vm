@@ -49,7 +49,7 @@ def registerPlayer(name):
     """
     DB = connect()
     c = DB.cursor()
-    cmd = "INSERT INTO players (name,wins,matches,bye) VALUES (%s,%s,%s,%s)"
+    cmd = "INSERT INTO players (name,score,matches,bye) VALUES (%s,%s,%s,%s)"
     c.execute(cmd, (name,0,0,0))
     DB.commit()
     DB.close()
@@ -70,9 +70,9 @@ def playerStandings():
     """
     DB = connect()
     c = DB.cursor()
-    c.execute("""SELECT id, name, wins, matches, bye
+    c.execute("""SELECT id, name, score, matches, bye
                  FROM players
-                 ORDER BY wins DESC, matches
+                 ORDER BY score DESC, matches
               """)
     ranks = []
     for row in c.fetchall():
@@ -80,21 +80,29 @@ def playerStandings():
     DB.close()
     return ranks
 
-def reportMatch(winner, loser):
+def reportMatch(winner, loser, draw='FALSE'):
     """Records the outcome of a single match between two players.
 
     Args:
       winner:  the id number of the player who won
       loser:  the id number of the player who lost
+      draw:  if the match was a draw
     """
+    if draw == 'TRUE':
+        w_points = 1
+        l_points = 1
+    else:
+        w_points = 3
+        l_points = 0
+
     DB = connect()
     c = DB.cursor()
-    ins = "INSERT INTO matches (winner, loser) VALUES (%s,%s)"
-    win = "UPDATE players SET wins = wins+1, matches = matches+1 WHERE id = %s"
-    los = "UPDATE players SET matches = matches+1 WHERE id = %s"
-    c.execute(ins, (winner, loser))
-    c.execute(win, (winner,))
-    c.execute(los, (loser,))
+    ins = "INSERT INTO matches (winner, loser, draw) VALUES (%s,%s,%s)"
+    win = "UPDATE players SET score = score+%s, matches = matches+1 WHERE id = %s"
+    los = "UPDATE players SET score = score+%s, matches = matches+1 WHERE id = %s"
+    c.execute(ins, (winner, loser, draw))
+    c.execute(win, (w_points, winner))
+    c.execute(los, (l_points, loser))
     DB.commit()
     DB.close()
 
@@ -127,7 +135,7 @@ def reportBye(player):
     """
     DB = connect()
     c = DB.cursor()
-    bye = "UPDATE players SET wins = wins+1, matches = matches+1, bye=bye+1 WHERE id = %s"
+    bye = "UPDATE players SET score = score+3, matches = matches+1, bye=bye+1 WHERE id = %s"
     c.execute(bye, (player,))
     DB.commit()
     DB.close()
