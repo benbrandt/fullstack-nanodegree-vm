@@ -7,12 +7,19 @@
 -- these lines here.
 
 CREATE TABLE players ( id SERIAL,
-                       name TEXT,
-                       score INTEGER,
-                       matches INTEGER,
-                       bye INTEGER );
+                       name TEXT );
+
+CREATE TABLE tournaments ( id SERIAL,
+                           name TEXT );
 
 CREATE TABLE matches ( matchid SERIAL,
+                       tournament INTEGER,
                        winner INTEGER,
                        loser INTEGER,
                        draw BOOLEAN );
+
+CREATE TABLE scoreboard ( tournament INTEGER,
+                          player INTEGER,
+                          score INTEGER,
+                          matches INTEGER,
+                          bye INTEGER );
