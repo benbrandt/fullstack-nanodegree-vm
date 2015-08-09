@@ -70,9 +70,17 @@ def playerStandings():
     """
     DB = connect()
     c = DB.cursor()
-    c.execute("""SELECT id, name, score, matches, bye
-                 FROM players
-                 ORDER BY score DESC, matches
+    c.execute("""SELECT p.id, p.name, p.score, p.matches, p.bye,
+                    (SELECT SUM(p2.score)
+                     FROM players AS p2
+                     WHERE p2.id IN (SELECT loser
+                                     FROM matches
+                                     WHERE winner = p.id)
+                     OR p2.id IN(SELECT winner
+                                 FROM matches
+                                 WHERE loser = p.id)) AS owm
+                 FROM players AS p
+                 ORDER BY p.score DESC, owm DESC, p.matches DESC
               """)
     ranks = []
     for row in c.fetchall():
