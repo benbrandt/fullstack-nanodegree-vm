@@ -195,7 +195,7 @@ def reportBye(player, tid):
     """
     DB = connect()
     c = DB.cursor()
-    bye = "UPDATE scoreboard SET score = score+3, matches = matches+1, bye=bye+1 WHERE player = %s AND tournament = %s"
+    bye = "UPDATE scoreboard SET score = score+3, bye=bye+1 WHERE player = %s AND tournament = %s"
     c.execute(bye, (player,tid))
     DB.commit()
     DB.close()
